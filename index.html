@@ -264,9 +264,60 @@ main{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
 .toast.ok{border-color:#86efac;background:var(--green-l);color:var(--green)}
 .toast.err{border-color:#fca5a5;background:var(--red-l);color:var(--red)}
 @keyframes tin{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
-@media(max-width:767px){.sidebar{display:none}.tab-bar{display:block}main{padding-bottom:calc(72px + var(--sab))}.toast-wrap{bottom:calc(76px + var(--sab))}.kpi-row{grid-template-columns:1fr 1fr}.fgrid2{grid-template-columns:1fr}}
-@media(max-width:767px){#profile-screen:not(.hidden) ~ .tab-bar{display:none !important}}
-@media(min-width:768px){.cg{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}.kpi-row{grid-template-columns:repeat(4,1fr)}.overlay{align-items:center;padding-bottom:0}.modal{border-radius:var(--r2);max-height:88vh}.modal::before{display:none}}
+/* ── iPhone (< 480px) ── */
+@media(max-width:479px){
+  .sidebar{display:none}
+  .tab-bar{display:block}
+  main{padding:12px 10px calc(72px + var(--sab)) 10px}
+  .toast-wrap{bottom:calc(76px + var(--sab))}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .fgrid2{grid-template-columns:1fr}
+  .cg{grid-template-columns:1fr}
+  .topbar{padding:0 10px}
+  .folder-bar{padding:0 8px}
+  .ph{padding:10px 10px 6px}
+  .card{padding:12px}
+  .modal{border-radius:var(--r2) var(--r2) 0 0;max-height:93vh}
+  .tab-item .tab-lbl{font-size:9px}
+  .call-big{font-size:13px;padding:10px 12px}
+  h2,.ph-title{font-size:17px}
+}
+/* ── iPad (480px – 1023px) ── */
+@media(min-width:480px) and (max-width:1023px){
+  .sidebar{display:none}
+  .tab-bar{display:block}
+  main{padding:16px 20px calc(80px + var(--sab)) 20px}
+  .toast-wrap{bottom:calc(84px + var(--sab))}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .cg{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+  .modal{border-radius:var(--r2);max-height:88vh}
+  .modal::before{display:none}
+  .overlay{align-items:center;padding-bottom:0}
+  .tab-item .tab-lbl{font-size:10px}
+  .topbar{padding:0 18px}
+}
+/* ── iMac / Desktop (≥ 1024px) ── */
+@media(min-width:1024px){
+  .sidebar{display:flex;width:220px}
+  .tab-bar{display:none !important}
+  main{padding:20px 28px}
+  .cg{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+  .kpi-row{grid-template-columns:repeat(4,1fr)}
+  .overlay{align-items:center;padding-bottom:0}
+  .modal{border-radius:var(--r2);max-height:85vh;max-width:600px}
+  .modal::before{display:none}
+  .topbar{padding:0 20px}
+  .folder-bar{padding:0 16px}
+  .ph{padding:14px 20px 10px}
+  /* Grille prospects plus dense sur grand écran */
+  .cc{cursor:pointer}
+  .cc:hover{border-color:var(--acc-m);background:var(--acc-l)}
+}
+/* ── Tablette large / iPad Pro (768px – 1023px) ── */
+@media(min-width:768px) and (max-width:1023px){
+  .kpi-row{grid-template-columns:repeat(4,1fr)}
+  .fgrid2{grid-template-columns:1fr 1fr}
+}
 /* STATUS BADGE ON PROSPECT CARD */
 .co-status{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;flex-shrink:0}
 .cs-new{background:var(--bg);color:var(--ink3);border:1px solid var(--border)}
@@ -464,9 +515,7 @@ main{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
     <div class="ni" data-view="relances" onclick="nav(this)"><span class="ico">🔁</span>À rappeler<span class="nbadge" id="nb-r" style="background:var(--red)">0</span></div>
     <div class="ni" data-view="calls" onclick="nav(this)"><span class="ico">📞</span>Appels<span class="nbadge" id="nb-c">0</span></div>
     <div class="ni" data-view="rdv" onclick="nav(this)"><span class="ico">📅</span>Rendez-vous</div>
-    <div class="ni" data-view="annuaire" onclick="nav(this)"><span class="ico">🔎</span>Prospection zone</div>
     <div class="ni" data-view="import" onclick="nav(this)"><span class="ico">📂</span>Importer CSV</div>
-    <div class="ni" onclick="navTo('prospects');setTimeout(startBgSearch,200)" style="color:#7c3aed"><span class="ico">✦</span>Chercher gérants</div>
     <div class="nsep"></div>
     <div class="nsec">Outils</div>
     <div class="ni" data-view="stats" onclick="nav(this)"><span class="ico">📊</span>Statistiques</div>
@@ -541,54 +590,6 @@ main{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
       <div class="tbl-wrap"><div class="tbl-scroll"><table><thead><tr><th>Contact</th><th>Date</th><th>Heure</th><th>Adresse</th><th>Statut</th><th></th></tr></thead><tbody id="rdv-tbody"></tbody></table></div></div>
     </div>
     <!-- ANNUAIRE ENTREPRISES -->
-    <div class="view" id="view-annuaire">
-      <div class="ph"><div><div class="ph-title">Prospection par zone</div><div class="ph-sub">OpenStreetMap + data.gouv.fr · Téléphone · Gérant · Adresse</div></div></div>
-
-      <div class="card" style="padding:16px">
-        <!-- Ville + rayon -->
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-          <div class="srch" style="flex:1;min-width:180px">
-            <span class="srch-ico">🏙</span>
-            <input id="ann-ville" placeholder="Ville (ex: Sarreguemines)" onkeydown="if(event.key==='Enter')lancerProspection()">
-          </div>
-          <select id="ann-rayon" class="fsel">
-            <option value="1000">Ville seule</option>
-            <option value="3000">+ 3 km</option>
-            <option value="5000" selected>+ 5 km</option>
-            <option value="10000">+ 10 km</option>
-            <option value="20000">+ 20 km</option>
-          </select>
-        </div>
-
-        <!-- Catégories OSM -->
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);margin-bottom:8px">
-          Catégories à rechercher :
-          <span style="margin-left:8px">
-            <button onclick="selectAllMetiers(true)" style="background:var(--acc-l);border:1px solid var(--acc-m);border-radius:5px;padding:2px 8px;font-size:10px;cursor:pointer;color:var(--acc)">Tout</button>
-            <button onclick="selectAllMetiers(false)" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-size:10px;cursor:pointer;color:var(--ink3);margin-left:4px">Aucun</button>
-          </span>
-        </div>
-        <div id="metiers-grid" style="display:flex;flex-wrap:wrap;gap:6px;max-height:180px;overflow-y:auto;padding:4px 0"></div>
-
-        <div style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap">
-          <button class="btn bp" id="ann-btn" onclick="lancerProspection()" style="flex:1;justify-content:center;min-width:140px">
-            🔍 Lancer la prospection
-          </button>
-          <div style="font-size:11px;color:var(--ink3)" id="ann-count-info"></div>
-        </div>
-
-        <div id="ann-progress" style="display:none;margin-top:12px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-            <div style="font-size:12px;color:var(--ink2)" id="ann-progress-txt">Recherche en cours…</div>
-            <button onclick="stopProspection()" style="background:var(--red-l);border:1px solid #fca5a5;color:var(--red);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer">⏹ Stop</button>
-          </div>
-          <div style="background:var(--border);border-radius:4px;height:6px"><div id="ann-progress-bar" style="height:100%;background:linear-gradient(90deg,var(--acc),var(--green));border-radius:4px;transition:width .4s;width:0%"></div></div>
-        </div>
-      </div>
-
-      <div id="ann-results"></div>
-    </div>
-
     <!-- IMPORT CSV -->
     <div class="view" id="view-import">
       <div class="ph">
@@ -721,7 +722,6 @@ Cordialement,
     <button class="tab-item" data-view="relances" onclick="tabNav(this)"><span class="tab-ico">🔁</span><span class="tab-lbl">Relances</span></button>
     <button class="tab-item" data-view="calls" onclick="tabNav(this)"><span class="tab-ico">📞</span><span class="tab-lbl">Appels</span></button>
     <button class="tab-item" data-view="rdv" onclick="tabNav(this)"><span class="tab-ico">📅</span><span class="tab-lbl">RDV</span></button>
-    <button class="tab-item" data-view="annuaire" onclick="tabNav(this)"><span class="tab-ico">🔎</span><span class="tab-lbl">Prospecter</span></button>
     <button class="tab-item" onclick="toggleMoreMenu()"><span class="tab-ico">⋯</span><span class="tab-lbl">Plus</span></button>
   </div>
   <!-- Menu "Plus" -->
@@ -996,473 +996,18 @@ Cordialement,
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
-// ══════════════════════════════════════
-//  MAPPING MÉTIERS → CODES NAF INSEE
-// ══════════════════════════════════════
-var METIERS_NAF = {
-  'plomberie':           ['4322A','4322B'],
-  'électricité':         ['4321A','4321B'],
-  'maçonnerie':          ['4312A','4312B','4391A'],
-  'menuiserie':          ['4332A','4332B','4332C'],
-  'peinture bâtiment':   ['4334Z'],
-  'couverture':          ['4391B'],
-  'carrelage':           ['4333Z'],
-  'plâtrerie':           ['4331Z'],
-  'chauffage':           ['4322A','4322B','4329A','4329B'],
-  'fenêtres':            ['4332A','4332C'],
-  'serrurerie métallerie':['2511Z','4332B'],
-  'ravalement façade':   ['4391A','4334Z'],
-  'rénovation immobilière':['4120A','4120B','4110A'],
-  'bâtiment':            ['4120A','4120B'],
-  'terrassement':        ['4312A','4313Z'],
-  'travaux publics':     ['4211Z','4212Z','4213A','4213B','4221Z','4222Z','4291Z','4299Z'],
-  'énergie renouvelable':['4321A','3511Z','3512Z','4322A'],
-  'paysagiste':          ['8130Z','0161Z'],
-  'piscine':             ['4329A','9200Z'],
-  'véranda':             ['4332A','4332C'],
-  'cuisine équipée':     ['4332A','4759B'],
-  'parquet':             ['4333Z'],
-  'climatisation':       ['4322A','4322B'],
-  'fermetures':          ['4332A','4332B'],
-  'assainissement vidange':['3700Z','3811Z','4322B'],
-  'aménagement parcs jardins':['8130Z','0161Z'],
-  'aménagement caves combles':['4120A','4332A'],
-  'clôtures barrières':  ['4332B','2512Z'],
-  'dépannage':           ['3314Z','9521Z','9522Z'],
-  'construction individuelle':['4110A','4120A'],
-  'revêtement':          ['4333Z','4334Z'],
-  'garage automobile':   ['4520A','4520B','4511Z'],
-  'carrosserie':         ['4520A'],
-  'contrôle technique':  ['7120A','7120B'],
-  'pneumatique':         ['4520A','4532Z'],
-  'agence immobilière':  ['6831Z','6832A','6832B'],
-  'assurance':           ['6511Z','6512Z','6622Z'],
-  'restaurant':          ['5610A','5610B','5610C','5621Z','5629A','5629B'],
-  'hôtel':               ['5510Z','5520Z','5530Z'],
-  'fleuriste':           ['4776Z'],
-  'opticien':            ['4778A'],
-  'pharmacie':           ['4773Z'],
-  'institut beauté':     ['9602B','9602A'],
-  'auto-école':          ['8553Z'],
-  'ambulance':           ['8621Z','8622Z'],
-  'taxi':                ['4932Z','4939A'],
-  'traiteur':            ['5621Z','1085Z'],
-  'bricolage':           ['4752A','4752B'],
-  'constructeur maison': ['4110A','4120A'],
-  'pompes funèbres':     ['9603Z'],
-  'supermarché':         ['4711B','4711C','4711D','4711E','4711F'],
-  'alarme sécurité':     ['8020Z','4321A'],
-  'camping':             ['5530Z'],
-  'centre équestre':     ['9319Z','0149Z'],
-  'fitness':             ['9311Z','9312Z'],
-  'motoculture':         ['4775Z','3316Z'],
-  'marbrerie':           ['2370Z','9603Z'],
-  'pépinière':           ['0130Z','4776Z'],
-  'agence voyages':      ['7911Z','7912Z'],
-};
-
-// Codes NAF par défaut pour les métiers non mappés (recherche textuelle)
-
-// ══════════════════════════════════════
-//  MAPPING MÉTIERS → TAGS OSM
-// ══════════════════════════════════════
-var OSM_TAGS = {
-  'restaurant':        [['amenity','restaurant'],['amenity','fast_food'],['amenity','food_court']],
-  'hôtel':             [['tourism','hotel'],['tourism','motel'],['tourism','guest_house']],
-  'café bar':          [['amenity','cafe'],['amenity','bar'],['amenity','pub']],
-  'boulangerie':       [['shop','bakery']],
-  'boucherie':         [['shop','butcher']],
-  'supermarché':       [['shop','supermarket'],['shop','convenience'],['shop','grocery']],
-  'pharmacie':         [['amenity','pharmacy']],
-  'médecin':           [['amenity','doctors'],['healthcare','doctor']],
-  'dentiste':          [['amenity','dentist']],
-  'opticien':          [['shop','optician']],
-  'coiffeur':          [['shop','hairdresser']],
-  'institut beauté':   [['shop','beauty'],['shop','cosmetics']],
-  'fleuriste':         [['shop','florist']],
-  'garage automobile': [['shop','car_repair'],['shop','car'],['amenity','fuel']],
-  'pneumatique':       [['shop','tyres']],
-  'contrôle technique':[['amenity','vehicle_inspection']],
-  'carrosserie':       [['shop','car_repair']],
-  'auto-école':        [['amenity','driving_school']],
-  'taxi':              [['amenity','taxi']],
-  'agence immobilière':[['shop','estate_agent']],
-  'assurance':         [['office','insurance']],
-  'banque':            [['amenity','bank']],
-  'notaire':           [['office','notary'],['office','lawyer']],
-  'comptable':         [['office','accountant']],
-  'plomberie':         [['craft','plumber']],
-  'électricité':       [['craft','electrician']],
-  'maçonnerie':        [['craft','mason'],['craft','builder']],
-  'menuiserie':        [['craft','carpenter'],['craft','joiner']],
-  'peinture bâtiment': [['craft','painter']],
-  'couverture':        [['craft','roofer']],
-  'chauffage':         [['craft','hvac']],
-  'serrurerie métallerie':[['craft','locksmith'],['craft','metal_construction']],
-  'carrelage':         [['craft','tiler'],['craft','floor_layer']],
-  'paysagiste':        [['craft','gardener'],['shop','garden_centre']],
-  'pompes funèbres':   [['shop','funeral_directors']],
-  'pressing':          [['shop','dry_cleaning'],['shop','laundry']],
-  'vétérinaire':       [['amenity','veterinary']],
-  'fitness':           [['leisure','fitness_centre'],['leisure','sports_centre']],
-  'camping':           [['tourism','camp_site']],
-  'centre équestre':   [['leisure','horse_riding']],
-  'ambulance':         [['emergency','ambulance_station']],
-  'alarme sécurité':   [['shop','security']],
-  'bricolage':         [['shop','doityourself'],['shop','hardware']],
-  'motoculture':       [['shop','agrarian'],['shop','garden_machinery']],
-  'marbrerie':         [['craft','stonemason']],
-  'pépinière':         [['shop','garden_centre'],['landuse','plant_nursery']],
-  'agence voyages':    [['shop','travel_agency']],
-  'traiteur':          [['shop','deli'],['amenity','catering']],
-  'pizza':             [['amenity','fast_food'],['cuisine','pizza']],
-  'bois menuiserie':   [['shop','timber']],
-  'imprimerie':        [['craft','printer'],['shop','copyshop']],
-  'informatique':      [['shop','computer'],['shop','electronics']],
-  'photographe':       [['shop','photo']],
-  'bijouterie':        [['shop','jewelry']],
-  'librairie':         [['shop','books']],
-  'sport':             [['shop','sports']],
-  'chaussures':        [['shop','shoes']],
-  'vêtements':         [['shop','clothes']],
-};
-
-var ALL_METIERS = Object.keys(OSM_TAGS);
-var selectedMetiers = new Set(ALL_METIERS);
-var prospectionStopped = false;
-
-async function lancerProspection(){
-  var ville=document.getElementById('ann-ville').value.trim();
-  if(!ville){toast('Entrez une ville','err');return;}
-  if(selectedMetiers.size===0){toast('Sélectionnez au moins une catégorie','err');return;}
-
-  var btn=document.getElementById('ann-btn');
-  var zone=document.getElementById('ann-results');
-  var prog=document.getElementById('ann-progress');
-  var progTxt=document.getElementById('ann-progress-txt');
-  var progBar=document.getElementById('ann-progress-bar');
-
-  btn.disabled=true;btn.textContent='⏳ Recherche…';
-  zone.innerHTML='';prog.style.display='block';
-  prospectionStopped=false;
-  progTxt.textContent='Géolocalisation de '+ville+'…';progBar.style.width='3%';
-
-  // 1. Géolocaliser la ville → coordonnées GPS
-  var coords=null;
-  try{
-    var geoR=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(ville)+',France&format=json&limit=1',{headers:{'Accept':'application/json','User-Agent':'InforcomProCRM/1.0'}});
-    var geoD=await geoR.json();
-    if(geoD&&geoD[0]){coords={lat:parseFloat(geoD[0].lat),lon:parseFloat(geoD[0].lon),display:geoD[0].display_name};}
-  }catch(e){}
-
-  if(!coords){
-    // Fallback: geo.api.gouv.fr
-    try{
-      var cp=await resolveCP(ville);
-      var g2=await fetch('https://geo.api.gouv.fr/communes?codePostal='+cp+'&fields=centre&limit=1');
-      var d2=await g2.json();
-      if(d2&&d2[0]&&d2[0].centre){coords={lat:d2[0].centre.coordinates[1],lon:d2[0].centre.coordinates[0],display:ville};}
-    }catch(e){}
-  }
-
-  if(!coords){
-    prog.style.display='none';btn.disabled=false;btn.textContent='🔍 Lancer la prospection';
-    toast('Ville introuvable','err');return;
-  }
-
-  var rayonM=parseInt(document.getElementById('ann-rayon').value)||5000;
-  progTxt.textContent='Recherche OSM autour de '+ville+' (rayon '+Math.round(rayonM/1000)+'km)…';
-  progBar.style.width='10%';
-
-  // 2. Requête Overpass — tous les POI avec téléphone ou nom dans le rayon
-  var catList=Array.from(selectedMetiers);
-  var allResults=[];var seen=new Set();
-  var total=catList.length;var done=0;
-
-  var batchSize=6;
-  for(var i=0;i<catList.length&&!prospectionStopped;i+=batchSize){
-    var batch=catList.slice(i,i+batchSize);
-    await Promise.all(batch.map(async function(cat){
-      if(prospectionStopped)return;
-      var tags=OSM_TAGS[cat]||[];
-      try{
-        // Construire la requête Overpass pour tous les tags de cette catégorie
-        var tagQueries=tags.map(function(t){
-          var key=t[0],val=t[1];
-          return '  node["'+key+'"="'+val+'"](around:'+rayonM+','+coords.lat+','+coords.lon+');\n  way["'+key+'"="'+val+'"](around:'+rayonM+','+coords.lat+','+coords.lon+');\n';
-        }).join('');
-        var query='[out:json][timeout:25];\n(\n'+tagQueries+');\nout center tags;';
-        var r=await fetch('https://overpass-api.de/api/interpreter',{
-          method:'POST',
-          headers:{'Content-Type':'application/x-www-form-urlencoded'},
-          body:'data='+encodeURIComponent(query)
-        });
-        if(!r.ok)return;
-        var d=await r.json();
-        (d.elements||[]).forEach(function(el){
-          var uid=(el.tags&&el.tags.name?el.tags.name:'osm'+el.id);
-          if(seen.has(uid))return;seen.add(uid);
-          var lat=el.lat||(el.center&&el.center.lat)||null;
-          var lon=el.lon||(el.center&&el.center.lon)||null;
-          var t=el.tags||{};
-          if(!t.name)return; // Ignorer sans nom
-          allResults.push({
-            _source:'osm',_cat:cat,
-            name:t.name,
-            phone:t.phone||t['contact:phone']||t['contact:mobile']||null,
-            addr:[t['addr:housenumber'],t['addr:street'],t['addr:postcode'],t['addr:city']].filter(Boolean).join(' '),
-            website:t.website||t['contact:website']||null,
-            email:t.email||t['contact:email']||null,
-            lat:lat,lon:lon,
-            osmId:el.id
-          });
-        });
-      }catch(ex){}
-      done++;
-      progBar.style.width=Math.round((done/total)*70+15)+'%';
-      progTxt.textContent=done+'/'+total+' catégories · '+allResults.length+' entreprises OSM…';
-    }));
-    await new Promise(function(r){setTimeout(r,300);});// Rate limit Overpass
-  }
-
-  if(prospectionStopped){prog.style.display='none';btn.disabled=false;btn.textContent='🔍 Lancer la prospection';renderAnnuaireResults(allResults,ville);return;}
-
-  // 3. Enrichir avec gérants depuis data.gouv.fr (batch sur les noms)
-  progTxt.textContent='Enrichissement gérants ('+allResults.length+' entreprises)…';
-  progBar.style.width='88%';
-
-  // Chercher le gérant pour les 50 premiers résultats (priorité téléphone manquant)
-  var toEnrich=allResults.filter(function(e){return !e.gerant;}).slice(0,80);
-  var enrichBatch=5;
-  for(var j=0;j<toEnrich.length&&!prospectionStopped;j+=enrichBatch){
-    var eb=toEnrich.slice(j,j+enrichBatch);
-    await Promise.all(eb.map(async function(e){
-      if(prospectionStopped)return;
-      try{
-        var q=encodeURIComponent(e.name);
-        var cpM=e.addr.match(/(\d{5})/);
-        var cpParam=cpM?'&code_postal='+cpM[1]:'';
-        var r=await fetch('https://recherche-entreprises.api.gouv.fr/search?q='+q+cpParam+'&etat_administratif=A&per_page=3',{headers:{'Accept':'application/json'}});
-        if(!r.ok)return;
-        var d=await r.json();
-        var res=d.results||[];
-        for(var k=0;k<res.length;k++){
-          var ent=res[k];
-          // Vérifier correspondance nom
-          if(ent.nom_complet&&ent.nom_complet.toLowerCase().includes(e.name.toLowerCase().slice(0,6))){
-            var dirs=ent.dirigeants||[];
-            if(dirs.length>0){
-              var d0=dirs[0];
-              var prenom=d0.prenom_usuel||d0.prenom||'';
-              var nom=d0.nom||'';
-              e.gerant=((prenom+' '+nom).trim());
-              e.gerantTitre=d0.qualite||'Gérant';
-              e.siren=ent.siren;
-            }
-            if(!e.phone&&ent.siege&&ent.siege.siret)e._siret=ent.siege.siret;
-            break;
-          }
-        }
-      }catch(ex){}
-    }));
-  }
-
-  progBar.style.width='100%';
-  progTxt.textContent='✓ '+allResults.length+' entreprises trouvées — '+ville;
-  setTimeout(function(){
-    prog.style.display='none';
-    btn.disabled=false;btn.textContent='🔍 Lancer la prospection';
-    renderAnnuaireResults(allResults,ville);
-  },300);
-}
-
-var METIERS_ARTISANS=['aménagement caves combles','aménagement parcs jardins','assainissement vidange','carrelage','clôtures barrières','construction individuelle','dépannage','énergie renouvelable','bâtiment','climatisation','couverture','électricité','fermetures','maçonnerie','menuiserie','plâtrerie','plomberie','revêtement','peinture bâtiment','terrassement','travaux publics','fenêtres','paysagiste','piscine','parquet','ravalement façade','rénovation immobilière','serrurerie métallerie','chauffage','cuisine équipée','véranda'];
-var METIERS_COMMERCES=['agence voyages','agence immobilière','alarme sécurité','ambulance','assurance','auto-école','camping','carrosserie','centre équestre','fitness','contrôle technique','fleuriste','garage automobile','hôtel','institut beauté','constructeur maison','bricolage','marbrerie','motoculture','opticien','pépinière','pompes funèbres','restaurant','supermarché','taxi','traiteur','pneumatique'];
-var ALL_METIERS=METIERS_ARTISANS.concat(METIERS_COMMERCES);
-var selectedMetiers=new Set(ALL_METIERS);
-var METIERS_TEXTE=ALL_METIERS.filter(function(m){return !METIERS_NAF[m];});
-var prospectionStopped=false;
-
-function stopProspection(){
-  prospectionStopped=true;
-  var btn=document.getElementById('ann-btn');
-  if(btn){btn.disabled=false;btn.textContent='🔍 Lancer la prospection';}
-  document.getElementById('ann-progress').style.display='none';
-  toast('Recherche arrêtée — résultats partiels affichés','info');
-}
-
-function initMetiersGrid(){
-  var grid=document.getElementById('metiers-grid');
-  if(!grid||grid.children.length>0)return;
-  ALL_METIERS.forEach(function(m){
-    var btn=document.createElement('button');
-    btn.className='metier-chip sel';btn.textContent=m;btn.dataset.metier=m;
-    btn.onclick=function(){
-      if(selectedMetiers.has(m)){selectedMetiers.delete(m);btn.classList.remove('sel');}
-      else{selectedMetiers.add(m);btn.classList.add('sel');}
-      updateCountInfo();
-    };
-    grid.appendChild(btn);
-  });
-  updateCountInfo();
-}
-
-function selectAllMetiers(val){
-  selectedMetiers=val?new Set(ALL_METIERS):new Set();
-  document.querySelectorAll('.metier-chip').forEach(function(b){b.classList.toggle('sel',val);});
-  updateCountInfo();
-}
-
-function updateCountInfo(){
-  var el=document.getElementById('ann-count-info');
-  if(el)el.textContent=selectedMetiers.size+' métier'+(selectedMetiers.size>1?'s':'')+' sélectionné'+(selectedMetiers.size>1?'s':'');
-}
-
 async function resolveCP(ville){
-  var list=await resolveCPList(ville);
-  return list[0]||ville;
-}
-
-async function resolveCPList(ville){
   ville=ville.trim();
-  // Code postal direct
-  if(/^\d{5}$/.test(ville))return[ville];
+  if(/^\d{5}$/.test(ville))return ville;
   try{
-    var r=await fetch('https://geo.api.gouv.fr/communes?nom='+encodeURIComponent(ville)
-      +'&fields=codesPostaux,nom,population&boost=population&limit=5');
+    var r=await fetch('https://geo.api.gouv.fr/communes?nom='+encodeURIComponent(ville)+'&fields=codesPostaux,nom,population&boost=population&limit=1');
     var d=await r.json();
-    if(d&&d.length){
-      // Prendre la commune la plus peuplée avec ce nom exact d'abord
-      var exact=d.filter(function(c){return c.nom.toLowerCase()===ville.toLowerCase();});
-      var best=exact.length?exact[0]:d[0];
-      return best.codesPostaux&&best.codesPostaux.length?best.codesPostaux:[ville];
-    }
+    if(d&&d[0]&&d[0].codesPostaux&&d[0].codesPostaux[0])return d[0].codesPostaux[0];
   }catch(e){}
-  return[ville];
-}
-
-async function resolveCoords(ville, cp){
-  try{
-    // Chercher par nom de ville d'abord
-    var r=await fetch('https://geo.api.gouv.fr/communes?nom='+encodeURIComponent(ville)+'&fields=centre,codesPostaux,nom&boost=population&limit=1');
-    var d=await r.json();
-    if(d&&d[0]&&d[0].centre){
-      return{lat:d[0].centre.coordinates[1],lon:d[0].centre.coordinates[0]};
-    }
-    // Fallback: par code postal
-    var r2=await fetch('https://geo.api.gouv.fr/communes?codePostal='+cp+'&fields=centre&limit=1');
-    var d2=await r2.json();
-    if(d2&&d2[0]&&d2[0].centre){
-      return{lat:d2[0].centre.coordinates[1],lon:d2[0].centre.coordinates[0]};
-    }
-  }catch(e){}
-  return null;
-}
-
-async function getCommunesProches(lat, lon, rayonKm){
-  try{
-    // L'API geo.api.gouv.fr supporte la recherche par coordonnées + distance
-    var r=await fetch('https://geo.api.gouv.fr/communes?lat='+lat+'&lon='+lon+'&distance='+(rayonKm*1000)+'&fields=codesPostaux,nom,code&limit=100');
-    var d=await r.json();
-    return d||[];
-  }catch(e){return [];}
+  return ville;
 }
 
 
-function renderAnnuaireResults(results,ville){
-  var zone=document.getElementById('ann-results');
-  if(!results.length){
-    zone.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><div>Aucun résultat pour '+ville+'</div><div style="font-size:12px;color:var(--ink3);margin-top:4px">Essayez un rayon plus grand ou d autres categories</div></div>';
-    return;
-  }
-  // Trier : avec téléphone en premier, puis avec gérant
-  results.sort(function(a,b){
-    var scoreA=(a.phone?2:0)+(a.gerant?1:0);
-    var scoreB=(b.phone?2:0)+(b.gerant?1:0);
-    return scoreB-scoreA;
-  });
-  var avecTel=results.filter(function(e){return!!e.phone;}).length;
-  var avecGerant=results.filter(function(e){return!!e.gerant;}).length;
-
-  zone.innerHTML=
-    '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">'
-    +'<div>'
-      +'<div style="font-size:13px;font-weight:700">'+results.length+' établissements — <b>'+ville+'</b></div>'
-      +'<div style="font-size:11px;color:var(--ink3);margin-top:3px">📞 '+avecTel+' avec tél. · 👤 '+avecGerant+' avec gérant</div>'
-    +'</div>'
-    +'<button class="btn bp bsm" onclick="importAllAnnuaire()" style="background:var(--green)">↓ Tout importer ('+results.length+')</button>'
-    +'</div>'
-    +'<div id="ann-cards"></div>';
-
-  var cards=document.getElementById('ann-cards');
-  window._annuaireResults={};
-  results.forEach(function(e,idx){
-    var uid='osm_'+idx;
-    window._annuaireResults[uid]=e;
-    var alreadyIn=S.companies.some(function(c){return c.name===e.name&&(c.addr||'').slice(0,10)===(e.addr||'').slice(0,10);});
-    var div=document.createElement('div');div.className='card';div.style.marginBottom='10px';
-    div.innerHTML=
-      // Header
-      '<div class="cch" style="margin-bottom:8px">'
-        +'<div class="ccav" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">'+e.name.charAt(0).toUpperCase()+'</div>'
-        +'<div style="flex:1;min-width:0">'
-          +'<div class="ccn">'+e.name+'</div>'
-          +'<span style="background:var(--gold-l);color:var(--gold);border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700">'+e._cat+'</span>'
-        +'</div>'
-        +(alreadyIn?'<span class="badge b-done" style="font-size:10px">✓ Ajouté</span>':'')
-      +'</div>'
-      // Gérant
-      +(e.gerant
-        ?'<div style="display:flex;align-items:center;gap:6px;background:var(--green-l);border:1px solid #86efac;border-radius:8px;padding:7px 10px;font-size:12px;margin-bottom:8px">'
-          +'<span>👤</span><span style="font-weight:700;color:var(--green)">'+e.gerant+'</span>'
-          +(e.gerantTitre?'<span style="color:var(--ink3)">— '+e.gerantTitre+'</span>':'')
-        +'</div>'
-        :'<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--ink3);margin-bottom:8px">👤 Gérant non trouvé</div>'
-      )
-      // Téléphone
-      +(e.phone
-        ?'<div style="margin-bottom:8px"><a href="tel:'+e.phone.replace(/\s/g,'')+'" style="display:inline-flex;align-items:center;gap:6px;background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;color:#166534;text-decoration:none">📞 '+e.phone+'</a></div>'
-        :'<div style="margin-bottom:8px;font-size:11px;color:var(--ink3)">📞 Téléphone non renseigné sur OpenStreetMap</div>'
-      )
-      // Adresse
-      +(e.addr?'<div class="ccm" style="margin-bottom:8px">📍 '+e.addr+'</div>':'')
-      // Website
-      +(e.website?'<div class="ccm" style="margin-bottom:8px"><a href="'+e.website+'" target="_blank" style="color:var(--acc);font-size:11px">🌐 '+e.website+'</a></div>':'')
-      // Actions
-      +'<div style="display:flex;gap:7px;flex-wrap:wrap">'
-        +'<button class="btn bp bsm" style="flex:1;justify-content:center" data-idx="'+idx+'" onclick="addFromAnnuaire2(parseInt(this.dataset.idx))">'
-          +(alreadyIn?'↻ Ré-ajouter':'+ Ajouter comme prospect')
-        +'</button>'
-        +(e.lat&&e.lon?'<a href="https://maps.apple.com/?ll='+e.lat+','+e.lon+'" target="_blank" class="btn bg bsm" style="text-decoration:none">📍 Maps</a>':'')
-      +'</div>';
-    cards.appendChild(div);
-  });
-}
-
-function addFromAnnuaire2(idx){
-  var e=Object.values(window._annuaireResults)[idx];
-  if(!e)return;
-  var folderId=S.curFolder==='all'?(S.folders[1]?S.folders[1].id:'all'):S.curFolder;
-  S.companies.unshift({
-    id:'co'+Date.now()+Math.random().toString(36).slice(2,5),
-    name:e.name,
-    contact:e.gerant||'',
-    phone:e.phone||'',
-    email:e.email||'',
-    addr:e.addr||'',
-    sector:e._cat||'',
-    temp:'cold',
-    folderId:folderId,
-    addedAt:new Date().toISOString(),
-    gerant:e.gerant?{nom:e.gerant,titre:e.gerantTitre||'Gérant',confidence:4,source:'data.gouv.fr'}:null,
-    website:e.website||'',
-    siren:e.siren||''
-  });
-  save();renderProspects();renderFolders();updateHdr();
-  var btn=document.querySelector('[data-idx="'+idx+'"]');
-  if(btn){btn.textContent='✓ Ajouté';btn.style.background='var(--green)';}
-  toast(e.name+' ajouté','ok');
-}
 
 
 function findPhoneBtn(el){
@@ -1472,56 +1017,8 @@ function findPhoneBtn(el){
   findPhoneForSiren(siren,nom,addr);
 }
 
-function addFromAnnuaire2(siren){
-  var dirs=e.dirigeants||[];var d=dirs[0]||null;
-  var cap=function(s){return s?s.split(' ').map(function(w){return w?w.charAt(0).toUpperCase()+w.slice(1).toLowerCase():'';}).join(' '):s;};
-  var gerantName=d?cap(((d.prenom_usuel||d.prenom||'')+' '+(d.nom||'')).trim()):'';
-  var gerantTitre=d?(d.qualite||'Gérant'):'';
-  var addr=(e.siege&&e.siege.adresse)||'';var cp=(e.siege&&e.siege.code_postal)||'';var ville=(e.siege&&e.siege.libelle_commune)||'';
-  var fullAddr=[addr,cp,ville].filter(Boolean).join(' ');
-  var phone=(window._annuairePhones&&window._annuairePhones[siren])||'';
-  var folderId=S.curFolder==='all'?(S.folders[1]?S.folders[1].id:'all'):S.curFolder;
-  S.companies.unshift({id:'co'+Date.now()+Math.random().toString(36).slice(2,5),name:e.nom_complet,contact:gerantName,phone:phone,email:'',addr:fullAddr,sector:e._metier||e.libelle_activite_principale||'',temp:'cold',folderId:folderId,addedAt:new Date().toISOString(),siren:siren,gerant:gerantName?{nom:gerantName,titre:gerantTitre,confidence:5,source:'annuaire-entreprises.data.gouv.fr'}:null});
-  save();renderProspects();renderFolders();updateHdr();
-  var btn=document.getElementById('ann-add-'+siren);if(btn){btn.textContent='✓ Ajouté';btn.style.background='var(--green)';btn.disabled=true;}
-  toast(e.nom_complet+' ajouté','ok');
-}
 
-function importAllAnnuaire(){
-  if(!window._annuaireResults)return;
-  var entries=Object.values(window._annuaireResults);
-  var villeVal=document.getElementById('ann-ville')?document.getElementById('ann-ville').value:'Zone';
-  var folderName='📍 '+villeVal+' — '+entries.length+' prospects · '+new Date().toLocaleDateString('fr-FR');
-  var fid='f'+Date.now();S.folders.push({id:fid,name:folderName,icon:'🔎'});
-  var count=0;
-  entries.forEach(function(e){
-    // Éviter les doublons par nom+adresse
-    if(S.companies.some(function(c){return c.name===e.name&&(c.addr||'').slice(0,10)===(e.addr||'').slice(0,10);}))return;
-    S.companies.push({
-      id:'co'+Date.now()+Math.random().toString(36).slice(2,5),
-      name:e.name,
-      contact:e.gerant||'',
-      phone:e.phone||'',
-      email:e.email||'',
-      addr:e.addr||'',
-      sector:e._cat||'',
-      temp:'cold',
-      folderId:fid,
-      addedAt:new Date().toISOString(),
-      siren:e.siren||'',
-      website:e.website||'',
-      gerant:e.gerant?{nom:e.gerant,titre:e.gerantTitre||'Gérant',confidence:4,source:'data.gouv.fr'}:null
-    });
-    count++;
-  });
-  S.curFolder=fid;
-  save();renderProspects();renderFolders();updateHdr();
-  toast(count+' entreprises importées dans "'+villeVal+'"','ok');
-  navTo('prospects');
-}
 
-function addFromAnnuaire(data){addFromAnnuaire2(data.siren);}
-function searchAnnuaire(){lancerProspection();}
 
 
 // ══════════════════════════════════════
@@ -1901,7 +1398,6 @@ function switchView(v){
   if(v==='rdv')renderRdv();
   if(v==='relances')renderRelances();
   if(v==='stats')renderStats();
-  if(v==='annuaire'){initMetiersGrid();setTimeout(function(){var i=document.getElementById('ann-ville');if(i)i.focus();},200);}
   if(v==='emails')loadTpl();
   if(v==='backup')renderBackupStats();
   updateHdr();
