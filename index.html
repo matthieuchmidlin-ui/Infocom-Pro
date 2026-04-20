@@ -2068,7 +2068,16 @@ function loadMoreProspects(btn){
 }
 
 // GÉRANT SEARCH
-function launchCall(coId){var co=S.companies.find(function(x){return x.id===coId;});if(!co||!co.phone)return;pendCoId=coId;document.getElementById('ger-title').textContent=co.name;document.getElementById('ger-sub').textContent=(co.addr||'')+(co.sector?' · '+co.sector:'');document.getElementById('ger-zone').innerHTML='<div class="ger-searching"><div class="spin"></div>Recherche du gérant…</div>';document.getElementById('ger-tips').style.display='none';document.getElementById('ger-call-btn').style.display='none';document.getElementById('ger-call-lbl').textContent='Appeler '+co.phone;document.getElementById('ger-src').textContent='';
+function launchCall(coId){
+  var co=S.companies.find(function(x){return x.id===coId;});
+  if(!co||!co.phone)return;
+  // Vérifier que le numéro n'est pas un SIRET/SIREN
+  var digitsOnly=(co.phone+'').replace(/[^\d]/g,'');
+  if(digitsOnly.length>=9&&digitsOnly.length<=14&&digitsOnly.length!==10&&!co.phone.startsWith('+')){
+    toast('⚠ Numéro suspect ('+co.phone+') — vérifiez la fiche','err');
+    return;
+  }
+  pendCoId=coId;document.getElementById('ger-title').textContent=co.name;document.getElementById('ger-sub').textContent=(co.addr||'')+(co.sector?' · '+co.sector:'');document.getElementById('ger-zone').innerHTML='<div class="ger-searching"><div class="spin"></div>Recherche du gérant…</div>';document.getElementById('ger-tips').style.display='none';document.getElementById('ger-call-btn').style.display='none';document.getElementById('ger-call-lbl').textContent='Appeler '+co.phone;document.getElementById('ger-src').textContent='';
   // Reset checklist
   resetChecklist();
   // Show checklist & objections collapsed by default
@@ -2118,12 +2127,18 @@ function doDialNow(){
   var call={id:'call'+Date.now(),companyId:co.id,contact:(g&&g.nom)?g.nom:(co.contact||co.name),company:co.name,phone:co.phone,date:new Date().toISOString(),status:'En cours',temp:co.temp,notes:'',rdvId:null};
   S.calls.unshift(call);save();
   var m=document.querySelector('main');if(m)localStorage.setItem('scroll_precall_'+currentPid,m.scrollTop);
-  // Nettoyer le numéro : garder chiffres + + initial
+  // Nettoyer le numéro
   var raw=co.phone.toString().trim();
-  var cleaned=raw.replace(/\s|\-|\.|\(|\)/g,'');
+  var cleaned=raw.replace(/[\s\-\.\(\)]/g,'');
   // Convertir 0033 → +33
   if(cleaned.startsWith('0033'))cleaned='+33'+cleaned.slice(4);
-  // Convertir 06... → laisser tel quel (iPhone gère)
+  // Valider : un numéro de téléphone valide a max 15 chiffres (norme ITU)
+  // Un SIRET a 14 chiffres, un SIREN 9 — on rejette si trop long ou pas un numéro
+  var digitsOnly=cleaned.replace(/[^\d]/g,'');
+  if(digitsOnly.length>15||digitsOnly.length<7){
+    toast('Numéro invalide : '+raw,'err');
+    return;
+  }
   window.location.href='tel:'+cleaned;
   // Après raccroché : montrer la zone post-appel DANS le même modal
   setTimeout(function(){
@@ -2477,7 +2492,30 @@ function doDrag(e,on){e.preventDefault();document.getElementById('drop-zone').cl
 function onDropCSV(e){e.preventDefault();doDrag(e,false);var f=Array.from(e.dataTransfer.files).find(function(f){return f.name.toLowerCase().endsWith('.csv');});if(f)readCSVFile(f);}
 function handleCSVFile(e){var f=e.target.files[0];if(f)readCSVFile(f);e.target.value='';}
 function readCSVFile(file){var reader=new FileReader();reader.onload=function(e){parseCSVText(e.target.result);};reader.readAsText(file,'UTF-8');}
-function parseCSVText(text){if(!text.trim()){toast('Texte vide','err');return;}var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});var sep=text.includes(';')?';':',';var hasHeader=/[a-zA-Z]/.test(lines[0]&&lines[0].split(sep)[0])||false;var data=hasHeader?lines.slice(1):lines;impBuffer=data.map(function(l){var p=l.split(sep).map(function(v){return v.trim().replace(/^"|"$/g,'').replace(/""/g,'"');});return{name:p[0]||'',contact:p[1]||'',phone:p[2]||'',addr:p[3]||'',email:p[4]||'',sector:p[5]||''};}).filter(function(c){return c.name&&c.name.length>1;});if(!impBuffer.length){toast('Aucune entreprise trouvée','err');return;}document.getElementById('imp-count').textContent=impBuffer.length;document.getElementById('imp-tbody').innerHTML=impBuffer.slice(0,8).map(function(c){return'<tr><td>'+c.name+'</td><td>'+c.phone+'</td><td>'+c.addr+'</td></tr>';}).join('')+(impBuffer.length>8?'<tr><td colspan="3" style="color:var(--ink3);font-size:12px">… et '+(impBuffer.length-8)+' autres</td></tr>':'');document.getElementById('imp-preview-zone').style.display='block';document.getElementById('imp-folder').value='Import '+new Date().toLocaleDateString('fr-FR');toast(impBuffer.length+' entreprises détectées','ok');}
+function parseCSVText(text){
+  if(!text.trim()){toast('Texte vide','err');return;}
+  var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+  var sep=text.includes(';')?';':',';
+  var hasHeader=/[a-zA-Z]/.test(lines[0]&&lines[0].split(sep)[0])||false;
+  var data=hasHeader?lines.slice(1):lines;
+  function cleanPhone(v){
+    if(!v)return'';
+    var digits=v.replace(/[^\d]/g,'');
+    if(digits.length===14||digits.length===9)return'';
+    if(digits.length>=7&&digits.length<=15)return v.trim();
+    return'';
+  }
+  impBuffer=data.map(function(l){
+    var p=l.split(sep).map(function(v){return v.trim().replace(/^"|"$/g,'').replace(/""/g,'"');});
+    return{name:p[0]||'',contact:p[1]||'',phone:cleanPhone(p[2]),addr:p[3]||'',email:p[4]||'',sector:p[5]||''};
+  }).filter(function(c){return c.name&&c.name.length>1;});
+  if(!impBuffer.length){toast('Aucune entreprise trouvee','err');return;}
+  document.getElementById('imp-count').textContent=impBuffer.length;
+  document.getElementById('imp-tbody').innerHTML=impBuffer.slice(0,8).map(function(c){return'<tr><td>'+c.name+'</td><td>'+(c.phone||'—')+'</td><td>'+c.addr+'</td></tr>';}).join('')+(impBuffer.length>8?'<tr><td colspan="3" style="color:var(--ink3);font-size:12px">… et '+(impBuffer.length-8)+' autres</td></tr>':'');
+  document.getElementById('imp-preview-zone').style.display='block';
+  document.getElementById('imp-folder').value='Import '+new Date().toLocaleDateString('fr-FR');
+  toast(impBuffer.length+' entreprises detectees','ok');
+}
 function cancelImport(){impBuffer=[];document.getElementById('imp-preview-zone').style.display='none';}
 function confirmImport(){if(!impBuffer.length){toast('Aucune donnée à importer','err');return;}var fn=document.getElementById('imp-folder').value.trim()||'Import';var fid='f'+Date.now();S.folders.push({id:fid,name:fn,icon:'📁'});var cnt=0;impBuffer.forEach(function(c){if(!c.name)return;S.companies.push({id:'co'+Date.now()+cnt++,name:c.name,contact:c.contact,phone:c.phone,email:c.email,addr:c.addr,sector:c.sector,temp:'cold',folderId:fid,addedAt:new Date().toISOString(),gerant:null});});S.curFolder=fid;impBuffer=[];save();document.getElementById('imp-preview-zone').style.display='none';document.getElementById('csv-paste').value='';renderFolders();renderProspects();updateHdr();toast(cnt+' prospects importés dans "'+fn+'"','ok');navTo('prospects');setTimeout(function(){var cta=document.getElementById('gerant-cta');if(cta){var without=S.companies.filter(function(c){return!c.gerant&&c.phone;}).length;if(without>0){document.getElementById('gerant-cta-sub').textContent=without+' prospects sans gérant — l\'IA peut les chercher automatiquement';cta.style.display='flex';}}},500);}
 
