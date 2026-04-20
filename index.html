@@ -1167,7 +1167,7 @@ async function lancerProspection(){
 
   if(!coords){
     prog.style.display='none';btn.disabled=false;btn.textContent='🔍 Lancer la prospection';
-    toast('Ville introuvable — vérifiez l'orthographe','err');return;
+    toast('Ville introuvable','err');return;
   }
 
   var rayonM=parseInt(document.getElementById('ann-rayon').value)||5000;
@@ -1189,15 +1189,9 @@ async function lancerProspection(){
         // Construire la requête Overpass pour tous les tags de cette catégorie
         var tagQueries=tags.map(function(t){
           var key=t[0],val=t[1];
-          return '  node["'+key+'"="'+val+'"](around:'+rayonM+','+coords.lat+','+coords.lon+');
-'
-               + '  way["'+key+'"="'+val+'"](around:'+rayonM+','+coords.lat+','+coords.lon+');
-';
+          return '  node["'+key+'"="'+val+'"](around:'+rayonM+','+coords.lat+','+coords.lon+');\n  way["'+key+'"="'+val+'"](around:'+rayonM+','+coords.lat+','+coords.lon+');\n';
         }).join('');
-        var query='[out:json][timeout:25];
-(
-'+tagQueries+');
-out center tags;';
+        var query='[out:json][timeout:25];\n(\n'+tagQueries+');\nout center tags;';
         var r=await fetch('https://overpass-api.de/api/interpreter',{
           method:'POST',
           headers:{'Content-Type':'application/x-www-form-urlencoded'},
@@ -1378,7 +1372,7 @@ async function getCommunesProches(lat, lon, rayonKm){
 function renderAnnuaireResults(results,ville){
   var zone=document.getElementById('ann-results');
   if(!results.length){
-    zone.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><div>Aucun résultat pour '+ville+'</div><div style="font-size:12px;color:var(--ink3);margin-top:4px">Essayez un rayon plus grand ou d'autres catégories</div></div>';
+    zone.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><div>Aucun résultat pour '+ville+'</div><div style="font-size:12px;color:var(--ink3);margin-top:4px">Essayez un rayon plus grand ou d autres categories</div></div>';
     return;
   }
   // Trier : avec téléphone en premier, puis avec gérant
