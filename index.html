@@ -348,7 +348,7 @@ main{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
   </div>
 
   <div id="ps-connect-zone" style="text-align:center;margin-top:4px">
-    <button id="btn-show-gist" style="background:none;border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-family:'Geist',sans-serif;font-size:13px;color:var(--ink3);cursor:pointer;display:inline-flex;align-items:center;gap:8px;" onclick="showConnectMode()">
+    <button id="btn-show-gist" style="background:none;border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-family:'Geist',sans-serif;font-size:13px;color:var(--ink3);cursor:pointer;display:inline-flex;align-items:center;gap:8px;" onclick="document.getElementById('btn-show-gist').style.display='none';document.getElementById('ps-gist-form').style.display='block';">
       🔗 Se connecter avec GitHub Gist
     </button>
   </div>
@@ -363,11 +363,11 @@ main{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
       </div>
       <div style="margin-bottom:14px">
         <label style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:4px">Token GitHub *</label>
-        <input id="conn-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--ink);font-family:monospace;font-size:13px;padding:10px 12px;outline:none;box-sizing:border-box">
+        <input id="conn-token" type="text" autocomplete="off" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--ink);font-family:monospace;font-size:13px;padding:10px 12px;outline:none;box-sizing:border-box">
         <div style="font-size:10px;color:var(--ink3);margin-top:4px">github.com → Settings → Developer settings → Personal access tokens → Gist</div>
       </div>
       <div style="display:flex;gap:8px">
-        <button onclick="hideConnectMode()" style="flex:1;padding:11px;border-radius:9px;background:var(--bg);border:1px solid var(--border);font-family:'Geist',sans-serif;font-size:13px;cursor:pointer;color:var(--ink2)">Annuler</button>
+        <button onclick="document.getElementById('btn-show-gist').style.display='inline-flex';document.getElementById('ps-gist-form').style.display='none';" style="flex:1;padding:11px;border-radius:9px;background:var(--bg);border:1px solid var(--border);font-family:sans-serif;font-size:13px;cursor:pointer;color:var(--ink2)">Annuler</button>
         <button id="conn-submit-btn" onclick="connectFromGist()" style="flex:2;padding:11px;border-radius:9px;background:var(--acc);border:none;font-family:'Geist',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:white">☁️ Récupérer mes données</button>
       </div>
       <div id="conn-status" style="display:none;margin-top:10px;font-size:12px;text-align:center;padding:8px;border-radius:8px;background:#f8fafc;border:1px solid var(--border)"></div>
