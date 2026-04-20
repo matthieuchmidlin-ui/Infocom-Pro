@@ -2494,10 +2494,25 @@ function handleCSVFile(e){var f=e.target.files[0];if(f)readCSVFile(f);e.target.v
 function readCSVFile(file){var reader=new FileReader();reader.onload=function(e){parseCSVText(e.target.result);};reader.readAsText(file,'UTF-8');}
 function parseCSVText(text){
   if(!text.trim()){toast('Texte vide','err');return;}
-  var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
-  var sep=text.includes(';')?';':',';
-  var hasHeader=/[a-zA-Z]/.test(lines[0]&&lines[0].split(sep)[0])||false;
-  var data=hasHeader?lines.slice(1):lines;
+
+  // Parser CSV robuste qui gère les guillemets
+  function parseCSVLine(line, sep){
+    var result=[], cur='', inQ=false;
+    for(var i=0;i<line.length;i++){
+      var c=line[i];
+      if(c==='"'){
+        if(inQ&&line[i+1]==='"'){cur+='"';i++;}
+        else inQ=!inQ;
+      } else if(c===sep&&!inQ){
+        result.push(cur.trim());cur='';
+      } else {
+        cur+=c;
+      }
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
   function cleanPhone(v){
     if(!v)return'';
     var digits=v.replace(/[^\d]/g,'');
@@ -2505,13 +2520,29 @@ function parseCSVText(text){
     if(digits.length>=7&&digits.length<=15)return v.trim();
     return'';
   }
+
+  var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+  var sep=text.includes(';')?';':',';
+  var hasHeader=/[a-zA-ZÀ-ÿ]/.test((lines[0]&&lines[0].split(sep)[0])||'');
+  var data=hasHeader?lines.slice(1):lines;
+
   impBuffer=data.map(function(l){
-    var p=l.split(sep).map(function(v){return v.trim().replace(/^"|"$/g,'').replace(/""/g,'"');});
-    return{name:p[0]||'',contact:p[1]||'',phone:cleanPhone(p[2]),addr:p[3]||'',email:p[4]||'',sector:p[5]||''};
+    var p=parseCSVLine(l, sep);
+    return{
+      name:p[0]||'',
+      contact:p[1]||'',
+      phone:cleanPhone(p[2]),
+      addr:p[3]||'',
+      email:p[4]||'',
+      sector:p[5]||''
+    };
   }).filter(function(c){return c.name&&c.name.length>1;});
+
   if(!impBuffer.length){toast('Aucune entreprise trouvee','err');return;}
   document.getElementById('imp-count').textContent=impBuffer.length;
-  document.getElementById('imp-tbody').innerHTML=impBuffer.slice(0,8).map(function(c){return'<tr><td>'+c.name+'</td><td>'+(c.phone||'—')+'</td><td>'+c.addr+'</td></tr>';}).join('')+(impBuffer.length>8?'<tr><td colspan="3" style="color:var(--ink3);font-size:12px">… et '+(impBuffer.length-8)+' autres</td></tr>':'');
+  document.getElementById('imp-tbody').innerHTML=impBuffer.slice(0,8).map(function(c){
+    return'<tr><td>'+c.name+'</td><td>'+(c.phone||'—')+'</td><td>'+c.sector+'</td></tr>';
+  }).join('')+(impBuffer.length>8?'<tr><td colspan="3" style="color:var(--ink3);font-size:12px">… et '+(impBuffer.length-8)+' autres</td></tr>':'');
   document.getElementById('imp-preview-zone').style.display='block';
   document.getElementById('imp-folder').value='Import '+new Date().toLocaleDateString('fr-FR');
   toast(impBuffer.length+' entreprises detectees','ok');
